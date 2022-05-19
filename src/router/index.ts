@@ -1,5 +1,5 @@
 import Router from 'express';
-import { test } from '../lib/api/root';
+import { test } from './api';
 import game from './game';
 
 const router = Router();
