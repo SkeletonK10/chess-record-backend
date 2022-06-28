@@ -1,10 +1,10 @@
 import Router from 'express';
-import { test } from './api';
+import { welcome } from './api';
 import game from './game';
 
 const router = Router();
 
-router.get("/", test);
+router.get("/", welcome);
 
 router.use("/game/", game);
 
