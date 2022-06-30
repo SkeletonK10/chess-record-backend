@@ -1,9 +1,9 @@
 import Router from 'express';
-import { test, insertGame } from './api';
+import { test, getGameList, insertGame } from './api';
 
 const router = Router();
 
-router.get("/", test);
+router.get("/", getGameList);
 router.post("/", insertGame);
 
 export default router;
