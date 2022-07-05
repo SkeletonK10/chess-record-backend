@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
-import { networkInterfaces } from "os";
+import { getConnection } from "../../db";
 
 export const test = (req: Request, res: Response, next: NextFunction) => {
     res.send("Hello, world!");
 };
 
-export const getGameList = (req: Request, res: Response, next: NextFunction) => {
+export const getGameList = async (req: Request, res: Response, next: NextFunction) => {
     
     // TODO: get game from DB /////////////////
     const limit: number = 20;
@@ -14,19 +14,21 @@ export const getGameList = (req: Request, res: Response, next: NextFunction) => 
         FROM game
         LIMIT ${limit}
     `;
-    // const rows = psql.query(query);
+    const client = await getConnection();
+    const rows = await client.query(query);
     //////////////////////////////////////////
     
     // TEST DATA //
-    const rows =
-    [
-        {
-            id: 3,
-            white: 'Gamer1',
-            black: 'Gamer2',
-            result: '1-0'
-        },
-    ]
+    // const rows =
+    // [
+    //     {
+    //         id: 3,
+    //         createdAt: new Date(Date.now()),
+    //         white: 'Gamer1',
+    //         black: 'Gamer2',
+    //         result: '1-0'
+    //     },
+    // ]
     
     res.json(rows);
     return next();
