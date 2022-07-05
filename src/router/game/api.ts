@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { resourceLimits } from "worker_threads";
 import { getConnection } from "../../db";
 
 export const test = (req: Request, res: Response, next: NextFunction) => {

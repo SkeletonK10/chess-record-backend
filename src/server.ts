@@ -1,7 +1,13 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
+import cors from 'cors';
 import router from "./router";
 
 const app = express();
+
+const corsOptions = {
+  origin: '*',
+}
+app.use(cors(corsOptions));
 
 app.use("/", router);
 
