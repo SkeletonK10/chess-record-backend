@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { resourceLimits } from "worker_threads";
 import { getConnection } from "../../db";
 
 export const test = (req: Request, res: Response, next: NextFunction) => {
@@ -15,7 +16,8 @@ export const getGameList = async (req: Request, res: Response, next: NextFunctio
         LIMIT ${limit}
     `;
     const client = await getConnection();
-    const rows = await client.query(query);
+    const result = await client.query(query);
+    const rows = result.rows;
     //////////////////////////////////////////
     
     // TEST DATA //
