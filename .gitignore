@@ -1,4 +1,3 @@
 node_modules
 
-dbconfig.ts
-
+src/dbconfig.ts
