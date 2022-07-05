@@ -1,38 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { getConnection } from "../../db";
 
 export const test = (req: Request, res: Response, next: NextFunction) => {
     res.send("Hello, world!");
-};
-
-export const getGameList = async (req: Request, res: Response, next: NextFunction) => {
-    
-    // TODO: get game from DB /////////////////
-    const limit: number = 20;
-    const query = `
-    SELECT id, TO_CHAR(createdAt, 'YYYY-MM-DD') as createdAt, white, black, result
-        FROM game
-        LIMIT ${limit}
-    `;
-    const client = await getConnection();
-    const result = await client.query(query);
-    const rows = result.rows;
-    //////////////////////////////////////////
-    
-    // TEST DATA //
-    // const rows =
-    // [
-    //     {
-    //         id: 3,
-    //         createdAt: new Date(Date.now()),
-    //         white: 'Gamer1',
-    //         black: 'Gamer2',
-    //         result: '1-0'
-    //     },
-    // ]
-    
-    res.json(rows);
-    return next();
 };
 
 export const getGameView = async (req: Request, res: Response, next: NextFunction) => {
