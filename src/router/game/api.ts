@@ -10,7 +10,7 @@ export const getGameList = async (req: Request, res: Response, next: NextFunctio
     // TODO: get game from DB /////////////////
     const limit: number = 20;
     const query = `
-    SELECT id, white, black, result
+    SELECT id, TO_CHAR(createdAt, 'YYYY-MM-DD') as createdAt, white, black, result
         FROM game
         LIMIT ${limit}
     `;
