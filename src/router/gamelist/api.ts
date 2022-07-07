@@ -13,7 +13,8 @@ export const getGameList = async (req: Request, res: Response, next: NextFunctio
     const valid: boolean = new RegExp(`^[1-9][0-9]*$`).test(req.params.page);
     
     const limit: number = 20;
-    const offset: number = valid ? Number(req.params.page) : 1;
+    const page: number = valid ? Number(req.params.page) : 1;
+    const offset: number = (page - 1) * limit;
     const query = `
     SELECT id, TO_CHAR(createdAt, 'YYYY-MM-DD') as createdAt, white, black, result, notation
         FROM game
