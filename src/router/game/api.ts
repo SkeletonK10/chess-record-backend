@@ -27,40 +27,24 @@ export const getGameView = async (req: Request, res: Response, next: NextFunctio
     FROM player
     WHERE id=${pid}
     `;
-    
     const client = await getConnection();
-    const gameRows = await client.query(gameQuery);
-    let game = gameRows.rows[0];
-    const whiteRows = await client.query(playerQuery(game.white));
-    const blackRows = await client.query(playerQuery(game.black));
-    game.white = whiteRows.rows[0];
-    game.black = blackRows.rows[0];
-    //////////////////////////////////////////
-    
-    // TEST DATA //
-    
-    // const game = 
-    // {
-    //     id: 3,
-    //     createdAt: '2022-07-05',
-    //     white: {
-    //         id: 1,
-    //         name: 'Gamer1',
-    //         rating: 1000,
-    //     },
-    //     black: {
-    //         id: 2,
-    //         name: 'Gamer2',
-    //         rating: 1050,
-    //     },
-    //     result: '1-0',
-    //     notation: '1. e4 e5 2. Nf3 Nf6 1-0',
-    // };
-
-    // const row = rows.find(x => x.id === Number(req.params.id));
-    ///////////////////////////////////////////
-    res.json(game);
-    return next();
+    try {
+        const gameRows = await client.query(gameQuery);
+        let game = gameRows.rows[0];
+        const whiteRows = await client.query(playerQuery(game.white));
+        const blackRows = await client.query(playerQuery(game.black));
+        game.white = whiteRows.rows[0];
+        game.black = blackRows.rows[0];
+        client.end();
+        res.json(game);
+        return next();
+    }
+    catch (err) {
+        console.log("Error occured while fetching data");
+        client.end();
+        res.json();
+        return next();
+    }
 };
 
 export const insertGame = (req: Request, res: Response, next: NextFunction) => {
