@@ -9,11 +9,9 @@ export const getGameList = async (req: Request, res: Response, next: NextFunctio
     
     // Production Code ///////////////////////
     
-    // Test whether page parameter valid (Natural number)
-    const valid: boolean = new RegExp(`^[1-9][0-9]*$`).test(req.params.page);
-    
     const limit: number = 20;
-    const page: number = valid ? Number(req.params.page) : 1;
+    const rPage: number = Number(req.params.page)
+    const page: number = Number.isInteger(rPage) ? Number(rPage) : 1;
     const offset: number = (page - 1) * limit;
     const query = `
     SELECT  G.id as id,
