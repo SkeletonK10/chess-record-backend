@@ -17,32 +17,33 @@ export const getGameView = async (req: Request, res: Response, next: NextFunctio
             notation,
             description
     FROM game
-    WHERE id=${req.params.id}
+    WHERE id=$1
     `;
     
-    const playerQuery = (pid: number) => `
+    const playerQuery = `
     SELECT  id,
             name,
             rating
     FROM player
-    WHERE id=${pid}
+    WHERE id=$1
     `;
     const client = await getConnection();
     try {
-        const gameRows = await client.query(gameQuery);
+        const gameRows = await client.query(gameQuery, [req.params.id]);
         let game = gameRows.rows[0];
-        const whiteRows = await client.query(playerQuery(game.white));
-        const blackRows = await client.query(playerQuery(game.black));
+        const whiteRows = await client.query(playerQuery, [game.white]);
+        const blackRows = await client.query(playerQuery, [game.black]);
         game.white = whiteRows.rows[0];
         game.black = blackRows.rows[0];
-        client.end();
         res.json(game);
-        return next();
     }
     catch (err) {
         console.log("Error occured while fetching data");
+        res.json({
+            error: err,
+        });
+    } finally {
         client.end();
-        res.json();
         return next();
     }
 };
