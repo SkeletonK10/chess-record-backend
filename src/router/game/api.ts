@@ -47,30 +47,38 @@ export const getGameView = async (req: Request, res: Response, next: NextFunctio
     }
 };
 
-export const insertGame = (req: Request, res: Response, next: NextFunction) => {
-    // TODO: insert game to DB ////////////////
-    
+export const insertGame = async (req: Request, res: Response, next: NextFunction) => {
     const body = req.body;
     const query = `
-    INSERT INTO game VALUES(white, black, result) 
-        (${body.white}, ${body.black}, ${body.result})
+    INSERT INTO game (playedat, white, black, result, notation, description) 
+    VALUES ($1, $2, $3, $4, $5, $6)
     `;
-    
+    const values = [
+        body.playedat,
+        body.white,
+        body.black,
+        body.result,
+        body.notation,
+        body.description];
+    const client = await getConnection();
     try {
-        // TODO: Query execution //
-        
-        ///////////////////////////
-        res.send("Insert query executed successfully!");
+        await client.query("BEGIN");
+        const ret = await client.query(query, values);
+        await client.query("COMMIT");
+        console.log("Insert query executed successfully!");
+        res.json(ret);
     }
-    catch {
-        // TODO: Rollback //
+    catch (err) {
+        await client.query("ROLLBACK");
         
-        ////////////////////
-        res.send("Error occured while inserting. Please try again.");
+        console.log(err);
+        console.log("Error occured while inserting.");
+        res.json({
+            error: err,
+        })
+    } finally {
+        client.end();
+        return next();
     }
     ///////////////////////////////////////////
-    
-    // TEST CODE //
-    res.send("TEST: Insert query executed successfully!");
-    return next();
 };
