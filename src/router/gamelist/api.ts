@@ -15,10 +15,12 @@ export const getGameList = async (req: Request, res: Response, next: NextFunctio
     const offset: number = (page - 1) * limit;
     const query = `
     SELECT  G.id as id,
-            TO_CHAR(G.createdAt, 'YYYY-MM-DD') as createdAt,
+            TO_CHAR(G.createdat, 'YYYY-MM-DD') as createdat,
+            TO_CHAR(G.playedat, 'YYYY-MM-DD') as playedat,
             W.name as white,
             B.name as black,
-            G.result as result
+            G.result as result,
+            G.description as description
     FROM    game as G
             JOIN
             player as W ON G.white = W.id
