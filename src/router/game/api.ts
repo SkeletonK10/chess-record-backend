@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 
 import { getConnection } from "../../db";
+import { IGameInfo, ResponseInfo } from "../../lib/types";
 
 export const test = (req: Request, res: Response, next: NextFunction) => {
     res.send("Hello, world!");
@@ -49,7 +50,7 @@ export const getGameView = async (req: Request, res: Response, next: NextFunctio
 };
 
 export const insertGame = async (req: Request, res: Response, next: NextFunction) => {
-    const body = req.body;
+    const body: IGameInfo = req.body;
     const query = `
     INSERT INTO game (playedat, white, black, result, notation, description) 
     VALUES ($1, $2, $3, $4, $5, $6)
@@ -71,9 +72,9 @@ export const insertGame = async (req: Request, res: Response, next: NextFunction
     }
     catch (err) {
         await client.query("ROLLBACK");
-        const errResponse = {
-            errorCode: 1001,
-            errorMsg: `Error occured while inserting: ${err}`,
+        const errResponse: ResponseInfo = {
+            code: 1001,
+            msg: `Error occured while inserting: ${err}`,
         }
         console.log(errResponse);
         res.json(errResponse);

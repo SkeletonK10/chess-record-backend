@@ -1,7 +1,8 @@
 export interface IGameInfo {
-  playedat?: string;
+  playedat: string;
   white: string;
   black: string;
+  startpos: string;
   result: string;
   notation?: string;
   description?: string;
@@ -12,7 +13,7 @@ export interface IUserInfo {
   userid: string;
 }
 
-export interface ErrorInfo {
-  errorCode: number;
-  errorMsg: string;
+export interface ResponseInfo {
+  code: number;
+  msg: string;
 }
