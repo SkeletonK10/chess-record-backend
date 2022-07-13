@@ -71,12 +71,12 @@ export const insertGame = async (req: Request, res: Response, next: NextFunction
     }
     catch (err) {
         await client.query("ROLLBACK");
-        
-        console.log(err);
-        console.log("Error occured while inserting.");
-        res.json({
-            error: err,
-        })
+        const errResponse = {
+            errorCode: 1001,
+            errorMsg: `Error occured while inserting: ${err}`,
+        }
+        console.log(errResponse);
+        res.json(errResponse);
     } finally {
         client.end();
         return next();
