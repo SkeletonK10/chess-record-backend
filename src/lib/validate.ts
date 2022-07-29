@@ -59,6 +59,12 @@ export const validateIGameInfo = (data: IGameInfo) => {
         msg: "Error: result not selected",
       };
     }
+    if (['백 승', '무승부', '흑 승', '중단됨'].includes(data.result) === false) {
+      return {
+        code: 2006,
+        msg: "Error: invalid result",
+      };
+    }
     
   } catch (err) {
     return {
