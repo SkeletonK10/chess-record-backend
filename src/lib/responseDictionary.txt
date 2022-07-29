@@ -1,0 +1,31 @@
+## Response code dictionary ##
+
+## code 0xxx: General response ##
+
+
+0000: No error, successful response (OK)
+0001: General error, not specified
+
+
+## code 1xxx: Database error ##
+
+
+10xx: Error occured while inserting.
+11xx: Error occured while searching.
+
+
+## code 2xxx: Validation error ##
+
+
+# code 20xx: IGameInfo validation #
+
+2001: playedat set to future date.
+2002: player (white, black) not selected.
+2003: white player and black player are same.
+2004: invalid start position.
+2005: result not selected.
+
+# code 21xx: IUserInfo validation #
+
+2101: invalid userid format.
+2102: input userid is duplicated.
