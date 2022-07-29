@@ -10,8 +10,18 @@
 ## code 1xxx: Database error ##
 
 
-10xx: Error occured while inserting.
-11xx: Error occured while searching.
+# code 10xx: DB Connection error ##
+1001: Error occured while DB connecting.
+
+# code 11xx: DB insert error #
+111x: Game insert error
+112x: Player insert error
+
+# code 12xx: DB search error #
+121x: GameView search error
+122x: GameList search error
+123x: PlayerView search error
+124x: PlayerList search error
 
 
 ## code 2xxx: Validation error ##

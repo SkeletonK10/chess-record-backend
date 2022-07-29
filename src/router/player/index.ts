@@ -1,8 +1,8 @@
 import Router from 'express';
-import { test, getPlayer } from './api';
+import { test, getPlayerView } from './api';
 
 const router = Router();
 
-router.get("/:id/", getPlayer);
+router.get("/:id/", getPlayerView);
 
 export default router;

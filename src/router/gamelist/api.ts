@@ -30,17 +30,28 @@ export const getGameList = async (req: Request, res: Response, next: NextFunctio
     LIMIT ${limit}
     OFFSET ${offset}
     `;
-    const client = await getConnection();
     try {
-        const result = await client.query(query);
-        client.end();
-        const rows = result.rows;
-        res.json(rows);
-        return next();
+        const client = await getConnection();
+        try {
+            const result = await client.query(query);
+            const rows = result.rows;
+            res.json(rows);
+        } catch (err) {
+            res.json({
+                code: 1220,
+                msg: `GameList: Error occured while searching.\n${err}`,
+            });
+            console.log(`GameList: Error occured while searching.\n${err}`);
+        } finally {
+            client.end();
+            return next();
+        }
     } catch (err) {
-        console.log("Error occured while fetching data");
-        client.end();
-        res.json();
+        res.json({
+            code: 1001,
+            msg: "Error occured while DB connecting.",
+        });
+        console.log("Error occured while DB connecting.");
         return next();
     }
 };

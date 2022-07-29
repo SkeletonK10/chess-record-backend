@@ -6,26 +6,7 @@ export const test = (req: Request, res: Response, next: NextFunction) => {
     res.send("Hello, world!");
 };
 
-export const getPlayerList = async (req: Request, res: Response, next: NextFunction) => {
-    const query = `
-    SELECT id, name, rating
-    FROM player
-    `;
-    const client = await getConnection();
-    try {
-        const result = await client.query(query);
-        await client.end();
-        const rows = result.rows;
-        res.json(rows);
-        return next();
-    } catch (err) {
-        await client.end();
-        return next();
-    }
-    
-}
-
-export const getPlayer = async (req: Request, res: Response, next: NextFunction) => {
+export const getPlayerView = async (req: Request, res: Response, next: NextFunction) => {
     
     const rid: number = Number(req.params.id);
     const id: number = Number.isInteger(rid) ? rid : 1;
@@ -34,9 +15,29 @@ export const getPlayer = async (req: Request, res: Response, next: NextFunction)
     FROM player
     WHERE id = ${id};
     `;
-    const client = await getConnection();
-    const result = await client.query(query);
-    const rows = result.rows[0];
-    res.json(rows);
-    return next();
+    
+    try {
+        const client = await getConnection();
+        try {
+            const result = await client.query(query);
+            const row = result.rows[0];
+            res.json(row);
+        } catch (err) {
+            res.json({
+                code: 1230,
+                msg: `PlayerView: Error occured while searching.\n${err}`,
+            });
+            console.log(`PlayerView: Error occured while searching.\n${err}`);
+        } finally {
+            client.end();
+            return next();
+        }
+    } catch (err) {
+        res.json({
+            code: 1001,
+            msg: "Error occured while DB connecting.",
+        });
+        console.log("Error occured while DB connecting.");
+        return next();
+    }
 }

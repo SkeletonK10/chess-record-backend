@@ -11,10 +11,29 @@ export const getPlayerList = async (req: Request, res: Response, next: NextFunct
     SELECT id, name, rating
     FROM player
     `;
-    const client = await getConnection();
-    const result = await client.query(query);
-    client.end();
-    const rows = result.rows;
-    res.json(rows);
-    return next();
+    try {
+        const client = await getConnection();
+        try {
+            const result = await client.query(query);
+            const rows = result.rows;
+            res.json(rows);
+        } catch (err) {
+            res.json({
+                code: 1240,
+                msg: `PlayerList: Error occured while searching.\n${err}`,
+            });
+            console.log(`PlayerList: Error occured while searching.\n${err}`);
+        } finally {
+            client.end();
+            return next();
+        }
+    } catch (err) {
+        res.json({
+            code: 1001,
+            msg: "Error occured while DB connecting.",
+        });
+        console.log("Error occured while DB connecting.");
+        return next();
+    }
+    
 }

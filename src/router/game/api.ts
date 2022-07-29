@@ -29,23 +29,33 @@ export const getGameView = async (req: Request, res: Response, next: NextFunctio
     FROM player
     WHERE id=$1
     `;
-    const client = await getConnection();
+    
     try {
-        const gameRows = await client.query(gameQuery, [req.params.id]);
-        let game = gameRows.rows[0];
-        const whiteRows = await client.query(playerQuery, [game.white]);
-        const blackRows = await client.query(playerQuery, [game.black]);
-        game.white = whiteRows.rows[0];
-        game.black = blackRows.rows[0];
-        res.json(game);
-    }
-    catch (err) {
-        console.log("Error occured while fetching data");
+        const client = await getConnection();
+        try {
+            const gameRows = await client.query(gameQuery, [req.params.id]);
+            let game = gameRows.rows[0];
+            const whiteRows = await client.query(playerQuery, [game.white]);
+            const blackRows = await client.query(playerQuery, [game.black]);
+            game.white = whiteRows.rows[0];
+            game.black = blackRows.rows[0];
+            res.json(game);
+        } catch (err) {
+            res.json({
+                code: 1210,
+                msg: `GameView: Error occured while searching.\n${err}`,
+            });
+            console.log(`GameView: Error occured while searching.\n${err}`);
+        } finally {
+            client.end();
+            return next();
+        }
+    } catch (err) {
         res.json({
-            error: err,
+            code: 1001,
+            msg: "Error occured while DB connecting.",
         });
-    } finally {
-        client.end();
+        console.log("Error occured while DB connecting.");
         return next();
     }
 };
@@ -71,27 +81,34 @@ export const insertGame = async (req: Request, res: Response, next: NextFunction
         body.notation,
         body.description];
     
-    const client = await getConnection();
     try {
-        await client.query("BEGIN");
-        const ret = await client.query(query, values);
-        await client.query("COMMIT");
-        console.log("Insert query executed successfully!");
-        res.json({
-            code: 0,
-            msg: "Insert query executed successfully!",
-        });
-    }
-    catch (err) {
-        await client.query("ROLLBACK");
-        const errResponse: ResponseInfo = {
-            code: 1001,
-            msg: `Error occured while inserting: ${err}`,
+        const client = await getConnection();
+        try {
+            await client.query("BEGIN");
+            const ret = await client.query(query, values);
+            await client.query("COMMIT");
+            res.json({
+                code: 0,
+                msg: "Insert query executed successfully!",
+            });
+            console.log("Insert query executed successfully!");
+        } catch (err) {
+            await client.query("ROLLBACK");
+            res.json({
+                code: 1110,
+                msg: `InsertGame: Error occured while inserting.\n${err}`,
+            });
+            console.log(`InsertGame: Error occured while inserting.\n${err}`);
+        } finally {
+            client.end();
+            return next();
         }
-        console.log(errResponse);
-        res.json(errResponse);
-    } finally {
-        client.end();
+    } catch (err) {
+        res.json({
+            code: 1001,
+            msg: "Error occured while DB connecting.",
+        });
+        console.log("Error occured while DB connecting.");
         return next();
     }
     ///////////////////////////////////////////
