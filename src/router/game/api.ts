@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 
 import { getConnection } from "../../db";
+import { calculateEloDiff, calculatePenaltyRating } from "../../lib/chess";
 import { IGameInfo, ResponseInfo } from "../../lib/types";
 import { validateIGameInfo } from "../../lib/validate";
 
@@ -60,11 +61,20 @@ export const getGameView = async (req: Request, res: Response, next: NextFunctio
     }
 };
 
+// TODO 1: 필드 추가 (타임컨트롤, 레이팅변화)
+// TODO 2: 레이팅 반영 (페널티 등등 고려해서)
+
 export const insertGame = async (req: Request, res: Response, next: NextFunction) => {
     const body: IGameInfo = req.body;
-    const query = `
-    INSERT INTO game (playedat, white, black, startpos, result, notation, description) 
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    const playerQuery = `SELECT rating FROM player WHERE id=$1`;
+    const playerUpdateQuery = `
+    UPDATE player
+    SET rating=$1
+    WHERE id=$2
+    `;
+    const gameQuery = `
+    INSERT INTO game (playedat, white, black, startpos, originaltime, incrementtime, result, whiteratingdiff, blackratingdiff, notation, description) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
     `;
     const validationRes = validateIGameInfo(body);
     if (validationRes.code !== 0) {
@@ -72,20 +82,32 @@ export const insertGame = async (req: Request, res: Response, next: NextFunction
         res.json(validationRes);
         return next();
     }
-    const values = [
-        body.playedat,
-        body.white,
-        body.black,
-        body.startpos,
-        body.result,
-        body.notation,
-        body.description];
     
     try {
         const client = await getConnection();
         try {
             await client.query("BEGIN");
-            const ret = await client.query(query, values);
+            const whiteRet = await client.query(playerQuery, [body.white]);
+            const blackRet = await client.query(playerQuery, [body.black]);
+            const whiteRating = whiteRet.rows[0].rating;
+            const blackRating = blackRet.rows[0].rating;
+            const { whitePenalty, blackPenalty } = calculatePenaltyRating(body.startpos);
+            const { whiteDiff, blackDiff } = calculateEloDiff(whiteRating + whitePenalty, blackRating + blackPenalty, body.result);
+            const gameValues = [
+                body.playedat,
+                body.white,
+                body.black,
+                body.startpos,
+                body.originaltime,
+                body.incrementtime,
+                body.result,
+                whiteDiff,
+                blackDiff,
+                body.notation,
+                body.description];
+            const gameRet = await client.query(gameQuery, gameValues);
+            const whiteUpdate = await client.query(playerUpdateQuery, [whiteRating + whiteDiff, body.white]);
+            const blackUpdate = await client.query(playerUpdateQuery, [blackRating + blackDiff, body.black]);
             await client.query("COMMIT");
             res.json({
                 code: 0,
