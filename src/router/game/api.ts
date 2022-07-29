@@ -111,5 +111,4 @@ export const insertGame = async (req: Request, res: Response, next: NextFunction
         console.log("Error occured while DB connecting.");
         return next();
     }
-    ///////////////////////////////////////////
 };

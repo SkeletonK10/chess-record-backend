@@ -92,7 +92,7 @@ export const validateIUserInfo = async (data: IUserInfo) => {
       result = await client.query(query, [data.userid]);
     } catch (err) {
       return {
-        code: 1101,
+        code: 2101,
         msg: `Error occured while searching: ${err}`,
       }
     } finally { client.end(); }
