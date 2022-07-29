@@ -15,7 +15,7 @@ import { IGameInfo, IUserInfo } from './types';
 export const validateIGameInfo = (data: IGameInfo) => {
   try {
     // playedat
-    if (Date.parse(data.playedat) === NaN) {
+    if (!Date.parse(data.playedat)) {
       return {
         code: 2000,
         msg: "Error: playedat not set",
@@ -86,18 +86,26 @@ export const validateIUserInfo = async (data: IUserInfo) => {
     
     // Duplicate check: DB connection
     let result;
-    const client = await getConnection();
     try {
-      const query = `SELECT * FROM player WHERE userid=$1`;
-      result = await client.query(query, [data.userid]);
+      const client = await getConnection();
+      try {
+        const query = `SELECT * FROM player WHERE userid=$1`;
+        result = await client.query(query, [data.userid]);
+      } catch (err) {
+        return {
+          code: 1241,
+          msg: `Error occured while searching: ${err}`,
+        }
+      } finally { client.end(); }
     } catch (err) {
       return {
-        code: 2101,
-        msg: `Error occured while searching: ${err}`,
-      }
-    } finally { client.end(); }
+        code: 1001,
+        msg: "Error occured while DB connecting.",
+      };
+    }
     
-    if (!result) throw new Error();
+    
+    
     if (result.rowCount !== 0) {
       return {
         code: 2102,

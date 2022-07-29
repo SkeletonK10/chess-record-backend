@@ -22,6 +22,7 @@
 122x: GameList search error
 123x: PlayerView search error
 124x: PlayerList search error
+1241: Player duplicate check query error
 
 
 ## code 2xxx: Validation error ##
