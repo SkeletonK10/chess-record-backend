@@ -52,13 +52,14 @@ export const getGameView = async (req: Request, res: Response, next: NextFunctio
 export const insertGame = async (req: Request, res: Response, next: NextFunction) => {
     const body: IGameInfo = req.body;
     const query = `
-    INSERT INTO game (playedat, white, black, result, notation, description) 
-    VALUES ($1, $2, $3, $4, $5, $6)
+    INSERT INTO game (playedat, white, black, startpos, result, notation, description) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
     `;
     const values = [
         body.playedat,
         body.white,
         body.black,
+        body.startpos,
         body.result,
         body.notation,
         body.description];
