@@ -8,13 +8,19 @@ import { IGameInfo, IUserInfo } from './types';
 // white / black: -1(선택하지 않음)일 때, 혹은 백과 흑이 같은 사람일 때 에러
 // result: -1(선택하지 않음)일 때 에러
 
-// TODO: POST /user/ Validation
+// POST /user/ Validation
 // name: 별 것 없음
 // userid: 3~16자 영문 대소문자, 숫자 (정규식), 중복 체크
 
 export const validateIGameInfo = (data: IGameInfo) => {
   try {
     // playedat
+    if (Date.parse(data.playedat) === NaN) {
+      return {
+        code: 2000,
+        msg: "Error: playedat not set",
+      };
+    }
     const playedAt: Date = new Date(data.playedat);
     playedAt.setHours(9);
     if (playedAt > new Date()) {

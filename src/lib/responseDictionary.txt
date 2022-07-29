@@ -19,6 +19,7 @@
 
 # code 20xx: IGameInfo validation #
 
+2000: playedat not set.
 2001: playedat set to future date.
 2002: player (white, black) not selected.
 2003: white player and black player are same.
