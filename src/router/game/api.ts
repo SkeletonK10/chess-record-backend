@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 
 import { getConnection } from "../../db";
 import { IGameInfo, ResponseInfo } from "../../lib/types";
+import { validateIGameInfo } from "../../lib/validate";
 
 export const test = (req: Request, res: Response, next: NextFunction) => {
     res.send("Hello, world!");
@@ -55,6 +56,12 @@ export const insertGame = async (req: Request, res: Response, next: NextFunction
     INSERT INTO game (playedat, white, black, startpos, result, notation, description) 
     VALUES ($1, $2, $3, $4, $5, $6, $7)
     `;
+    const validationRes = validateIGameInfo(body);
+    if (validationRes.code !== 0) {
+        console.log(`Code ${validationRes.code}: Invalid query has rejected`)
+        res.json(validationRes);
+        return next();
+    }
     const values = [
         body.playedat,
         body.white,
@@ -63,13 +70,17 @@ export const insertGame = async (req: Request, res: Response, next: NextFunction
         body.result,
         body.notation,
         body.description];
+    
     const client = await getConnection();
     try {
         await client.query("BEGIN");
         const ret = await client.query(query, values);
         await client.query("COMMIT");
         console.log("Insert query executed successfully!");
-        res.json(ret);
+        res.json({
+            code: 0,
+            msg: "Insert query executed successfully!",
+        });
     }
     catch (err) {
         await client.query("ROLLBACK");
