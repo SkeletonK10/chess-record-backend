@@ -11,6 +11,8 @@ import { IGameInfo, IUserInfo } from './types';
 // POST /user/ Validation
 // name: 별 것 없음
 // userid: 3~16자 영문 대소문자, 숫자 (정규식), 중복 체크
+// TODO
+// name: html 태그 조심
 
 export const validateIGameInfo = (data: IGameInfo) => {
   try {

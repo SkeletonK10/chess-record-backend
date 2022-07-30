@@ -1,4 +1,7 @@
 import { Client } from 'pg';
+import { config } from 'dotenv';
+
+config();
 
 export const getConnection = async () => {
   const client = new Client({
