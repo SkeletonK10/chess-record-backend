@@ -91,8 +91,8 @@ export const insertGame = async (req: Request, res: Response, next: NextFunction
             const blackRet = await client.query(playerQuery, [body.black]);
             const whiteRating = whiteRet.rows[0].rating;
             const blackRating = blackRet.rows[0].rating;
-            const { whitePenalty, blackPenalty } = calculatePenaltyRating(body.startpos);
-            const { whiteDiff, blackDiff } = calculateEloDiff(whiteRating + whitePenalty, blackRating + blackPenalty, body.result);
+            const { whiteOffset, blackOffset } = calculatePenaltyRating(body.startpos);
+            const { whiteDiff, blackDiff } = calculateEloDiff(whiteRating + whiteOffset, blackRating + blackOffset, body.result);
             const gameValues = [
                 body.playedat,
                 body.white,

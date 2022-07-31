@@ -21,15 +21,15 @@ export const calculatePenaltyRating = (startpos: string) => {
   }
   
   const position: string = startpos.split(' ')[0];
-  let blackPenalty = 0;
+  let blackOffset = 0;
   [...position].forEach((c) => {
     if (c in PieceValue)
-      blackPenalty += PieceValue[c];
+      blackOffset += PieceValue[c];
   })
-  blackPenalty *= 100;
+  blackOffset *= 100;
   return {
-    whitePenalty: -blackPenalty,
-    blackPenalty: blackPenalty,
+    whiteOffset: blackOffset,
+    blackOffset: -blackOffset,
   }
 }
 
