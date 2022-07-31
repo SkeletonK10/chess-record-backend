@@ -83,6 +83,15 @@ export const validateIGameInfo = (data: IGameInfo) => {
 
 export const validateIUserInfo = async (data: IUserInfo) => {
   try {
+    // name
+    const namePattern = new RegExp("^[가-힣]{1,6}$");
+    if (namePattern.exec(data.name) === null) {
+      return {
+        code: 2100,
+        msg: "Error: Invalid name format",
+      };
+    }
+    
     // userid
     const userIdPattern = new RegExp("^[a-zA-Z0-9]{3,16}$");
     if (userIdPattern.exec(data.userid) === null) {
