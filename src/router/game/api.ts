@@ -16,7 +16,14 @@ export const getGameView = async (req: Request, res: Response, next: NextFunctio
             TO_CHAR(playedAt, 'YYYY-MM-DD') as playedAt,
             white,
             black,
+            startpos,
+            originaltime,
+            incrementtime,
+            whiterating,
+            blackrating,
             result,
+            whiteratingdiff,
+            blackratingdiff,
             notation,
             description
     FROM game
@@ -24,9 +31,7 @@ export const getGameView = async (req: Request, res: Response, next: NextFunctio
     `;
     
     const playerQuery = `
-    SELECT  id,
-            name,
-            rating
+    SELECT name
     FROM player
     WHERE id=$1
     `;
@@ -38,8 +43,8 @@ export const getGameView = async (req: Request, res: Response, next: NextFunctio
             let game = gameRows.rows[0];
             const whiteRows = await client.query(playerQuery, [game.white]);
             const blackRows = await client.query(playerQuery, [game.black]);
-            game.white = whiteRows.rows[0];
-            game.black = blackRows.rows[0];
+            game.white = whiteRows.rows[0].name;
+            game.black = blackRows.rows[0].name;
             res.json(game);
         } catch (err) {
             res.json({
@@ -73,8 +78,21 @@ export const insertGame = async (req: Request, res: Response, next: NextFunction
     WHERE id=$2
     `;
     const gameQuery = `
-    INSERT INTO game (playedat, white, black, startpos, originaltime, incrementtime, result, whiteratingdiff, blackratingdiff, notation, description) 
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+    INSERT INTO game (
+        playedat,
+        white,
+        black,
+        startpos,
+        originaltime,
+        incrementtime,
+        whiterating,
+        blackrating,
+        result,
+        whiteratingdiff,
+        blackratingdiff,
+        notation,
+        description) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
     `;
     const validationRes = validateIGameInfo(body);
     if (validationRes.code !== 0) {
@@ -100,6 +118,8 @@ export const insertGame = async (req: Request, res: Response, next: NextFunction
                 body.startpos,
                 body.originaltime,
                 body.incrementtime,
+                whiteRating,
+                blackRating,
                 body.result,
                 whiteDiff,
                 blackDiff,
