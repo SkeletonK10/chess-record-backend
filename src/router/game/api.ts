@@ -40,11 +40,19 @@ export const getGameView = async (req: Request, res: Response, next: NextFunctio
         const client = await getConnection();
         try {
             const gameRows = await client.query(gameQuery, [req.params.id]);
-            let game = gameRows.rows[0];
+            const game = gameRows.rows[0];
             const whiteRows = await client.query(playerQuery, [game.white]);
             const blackRows = await client.query(playerQuery, [game.black]);
-            game.white = whiteRows.rows[0].name;
-            game.black = blackRows.rows[0].name;
+            game.white = {
+                name: whiteRows.rows[0].name,
+                rating: game.whiterating,
+                ratingdiff: game.whiteratingdiff,
+            };
+            game.black = {
+                name: blackRows.rows[0].name,
+                rating: game.blackrating,
+                ratingdiff: game.blackratingdiff,
+            };
             res.json(game);
         } catch (err) {
             res.json({
