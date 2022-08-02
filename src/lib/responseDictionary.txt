@@ -36,6 +36,8 @@
 2003: white player and black player are same.
 2004: invalid start position.
 2005: result not selected.
+2006: invalid result.
+2007: invalid time setting argument.
 
 # code 21xx: IUserInfo validation #
 

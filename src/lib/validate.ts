@@ -54,6 +54,15 @@ export const validateIGameInfo = (data: IGameInfo) => {
       };
     }
     
+    const rOrig = Number(data.originaltime);
+    const rInc = Number(data.incrementtime);
+    if (!Number.isInteger(rOrig) || !Number.isInteger(rInc)) {
+      return {
+        code: 2007,
+        msg: "Error: invalid time setting argument"
+      }
+    }
+    
     // result
     if (data.result === "-1") {
       return {
