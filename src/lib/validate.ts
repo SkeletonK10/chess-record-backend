@@ -25,7 +25,9 @@ export const validateIGameInfo = (data: IGameInfo) => {
     }
     const playedAt: Date = new Date(data.playedat);
     playedAt.setHours(9);
-    if (playedAt > new Date()) {
+    const standardTime = new Date();
+    standardTime.setDate(standardTime.getDate() + 1);
+    if (playedAt > standardTime) {
       return {
         code: 2001,
         msg: "Error: playedat set to future date",
