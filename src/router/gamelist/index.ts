@@ -3,6 +3,6 @@ import { test, getGameList } from './api';
 
 const router = Router();
 
-router.get("/:page/", getGameList);
+router.get("/", getGameList);
 
 export default router;
