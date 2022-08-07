@@ -31,7 +31,7 @@ export const getGameView = async (req: Request, res: Response, next: NextFunctio
     `;
     
     const playerQuery = `
-    SELECT name
+    SELECT id, userid, name
     FROM player
     WHERE id=$1
     `;
@@ -44,14 +44,12 @@ export const getGameView = async (req: Request, res: Response, next: NextFunctio
             const whiteRows = await client.query(playerQuery, [game.white]);
             const blackRows = await client.query(playerQuery, [game.black]);
             game.white = {
-                name: whiteRows.rows[0].name,
+                ...whiteRows.rows[0],
                 rating: game.whiterating,
-                ratingdiff: game.whiteratingdiff,
             };
             game.black = {
-                name: blackRows.rows[0].name,
+                ...blackRows.rows[0],
                 rating: game.blackrating,
-                ratingdiff: game.blackratingdiff,
             };
             res.json(game);
         } catch (err) {
