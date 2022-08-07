@@ -36,8 +36,8 @@ export const calculatePenaltyRating = (startpos: string) => {
 export const calculateEloDiff = (white: number, black: number, result: string, whiteK: number = 30, blackK: number = 30) => {
   if (result === '중단됨') {
     return {
-      white: 0,
-      black: 0,
+      whitediff: 0,
+      blackdiff: 0,
     }
   }
   else {

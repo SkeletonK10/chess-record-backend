@@ -8,8 +8,9 @@ export const test = (req: Request, res: Response, next: NextFunction) => {
 
 export const getPlayerList = async (req: Request, res: Response, next: NextFunction) => {
     const query = `
-    SELECT id, name, rating
+    SELECT id, name, userid, rating
     FROM player
+    ORDER BY rating DESC;
     `;
     try {
         const client = await getConnection();
