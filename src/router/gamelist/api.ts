@@ -8,7 +8,12 @@ export const test = (req: Request, res: Response, next: NextFunction) => {
 export const getGameList = async (req: Request, res: Response, next: NextFunction) => {
     
     // Production Code ///////////////////////
+    const playerID: number | undefined =
+        Number.isInteger(Number(req.query.playerid)) ?
+        Number(req.query.playerid) :
+        undefined;
     
+    const idQuery = playerID ? `WHERE G.white=${playerID} OR G.black=${playerID}` : ``;
     const query = `
     SELECT  G.id as id,
             TO_CHAR(G.createdat, 'YYYY-MM-DD') as createdat,
@@ -21,8 +26,10 @@ export const getGameList = async (req: Request, res: Response, next: NextFunctio
             player as W ON G.white = W.id
             JOIN
             player as B ON G.black = B.id
+    ${idQuery}
     ORDER BY id DESC
     `;
+    
     try {
         const client = await getConnection();
         try {
