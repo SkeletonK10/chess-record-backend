@@ -13,7 +13,7 @@ export const getPlayerView = async (req: Request, res: Response, next: NextFunct
     const rid: number = Number(req.params.id);
     const id: number = Number.isInteger(rid) ? rid : 1;
     const query = `
-    SELECT id, name, rating
+    SELECT id, name, userid, rating
     FROM player
     WHERE id = ${id};
     `;
