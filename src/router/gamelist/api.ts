@@ -8,10 +8,10 @@ export const test = (req: Request, res: Response, next: NextFunction) => {
 export const getGameList = async (req: Request, res: Response, next: NextFunction) => {
     
     // Production Code ///////////////////////
-    const playerID: number | undefined =
+    const playerID: number | null =
         Number.isInteger(Number(req.query.playerid)) ?
         Number(req.query.playerid) :
-        undefined;
+        null;
     
     const idQuery = playerID ? `WHERE G.white=${playerID} OR G.black=${playerID}` : ``;
     const query = `
