@@ -14,8 +14,10 @@ export interface GameListEntry {
   id: number;
   playedat: string;
   createdat: string;
-  white: number;
-  black: number;
+  white: string;
+  black: string;
+  whiteid: number;
+  blackid: number;
   result: string;
 };
 

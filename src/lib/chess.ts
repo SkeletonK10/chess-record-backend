@@ -63,14 +63,15 @@ export const calculateEloDiff = (white: number, black: number, result: string, w
   }
 }
 
-export const calculateSummary = (gameList: Array<GameListEntry>, playerID?: number | null) => {
+export const calculateSummary = (gameList: Array<GameListEntry>, playerID?: number) => {
   const summary = {
     win: 0,
     draw: 0,
     lose: 0,
     winRate: '0%',
   }
-  if (playerID === undefined) {
+  
+  if (!playerID) {
     gameList.map((game: GameListEntry) => {
       if (game.result === '백 승') summary.win++;
       else if (game.result === '무승부') summary.draw++;
@@ -80,16 +81,16 @@ export const calculateSummary = (gameList: Array<GameListEntry>, playerID?: numb
   else {
     gameList.map((game: GameListEntry) => {
       if (
-        (game.white === playerID && game.result === '백 승') ||
-        (game.black === playerID && game.result === '흑 승')
+        (game.whiteid === playerID && game.result === '백 승') ||
+        (game.blackid === playerID && game.result === '흑 승')
       ) summary.win++;
       else if (
-        (game.white === playerID && game.result === '무승부') ||
-        (game.black === playerID && game.result === '무승부')
+        (game.whiteid === playerID && game.result === '무승부') ||
+        (game.blackid === playerID && game.result === '무승부')
       ) summary.draw++;
       else if (
-        (game.white === playerID && game.result === '흑 승') ||
-        (game.black === playerID && game.result === '백 승')
+        (game.whiteid === playerID && game.result === '흑 승') ||
+        (game.blackid === playerID && game.result === '백 승')
       ) summary.lose++;
     });
   }
