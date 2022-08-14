@@ -1,5 +1,10 @@
 import { Request, Response, NextFunction } from "express";
+import { RowDescriptionMessage } from "pg-protocol/dist/messages";
+
 import { getConnection } from "../../db";
+import { calculateSummary } from "../../lib/chess";
+
+import { GameListEntry } from "../../lib/types";
 
 export const test = (req: Request, res: Response, next: NextFunction) => {
     res.send("Hello, world!");
@@ -8,10 +13,10 @@ export const test = (req: Request, res: Response, next: NextFunction) => {
 export const getGameList = async (req: Request, res: Response, next: NextFunction) => {
     
     // Production Code ///////////////////////
-    const playerID: number | null =
+    const playerID: number | undefined =
         Number.isInteger(Number(req.query.playerid)) ?
         Number(req.query.playerid) :
-        null;
+        undefined;
     
     const idQuery = playerID ? `WHERE G.white=${playerID} OR G.black=${playerID}` : ``;
     const query = `
@@ -20,6 +25,8 @@ export const getGameList = async (req: Request, res: Response, next: NextFunctio
             TO_CHAR(G.playedat, 'YYYY-MM-DD') as playedat,
             W.name as white,
             B.name as black,
+            W.id as whiteid,
+            B.id as blackid,
             G.result as result
     FROM    game as G
             JOIN
@@ -34,8 +41,13 @@ export const getGameList = async (req: Request, res: Response, next: NextFunctio
         const client = await getConnection();
         try {
             const result = await client.query(query);
-            const rows = result.rows;
-            res.json(rows);
+            const rows: Array<GameListEntry> = result.rows;
+            const summary = calculateSummary(rows, playerID);
+            const response = {
+                list: rows,
+                summary: summary,
+            }
+            res.json(response);
         } catch (err) {
             res.json({
                 code: 1220,
