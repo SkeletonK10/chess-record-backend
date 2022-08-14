@@ -24,6 +24,7 @@ export interface GameListEntry {
 export interface GameList {
   list: Array<GameListEntry>;
   summary: {
+    total: number;
     win: number;
     draw: number;
     lose: number;

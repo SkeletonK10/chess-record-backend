@@ -65,6 +65,7 @@ export const calculateEloDiff = (white: number, black: number, result: string, w
 
 export const calculateSummary = (gameList: Array<GameListEntry>, playerID?: number) => {
   const summary = {
+    total: 0,
     win: 0,
     draw: 0,
     lose: 0,
@@ -73,13 +74,16 @@ export const calculateSummary = (gameList: Array<GameListEntry>, playerID?: numb
   
   if (!playerID) {
     gameList.map((game: GameListEntry) => {
+      summary.total++;
       if (game.result === '백 승') summary.win++;
       else if (game.result === '무승부') summary.draw++;
       else if (game.result === '흑 승') summary.lose++;
+      else summary.total--;
     });
   }
   else {
     gameList.map((game: GameListEntry) => {
+      summary.total++;
       if (
         (game.whiteid === playerID && game.result === '백 승') ||
         (game.blackid === playerID && game.result === '흑 승')
@@ -92,6 +96,7 @@ export const calculateSummary = (gameList: Array<GameListEntry>, playerID?: numb
         (game.whiteid === playerID && game.result === '흑 승') ||
         (game.blackid === playerID && game.result === '백 승')
       ) summary.lose++;
+      else summary.total--;
     });
   }
   const winRate = ((summary.win + 0.5 * summary.draw) / (summary.win + summary.draw + summary.lose)) * 100;
