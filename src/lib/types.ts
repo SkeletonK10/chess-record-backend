@@ -32,6 +32,11 @@ export interface GameList {
   }
 }
 
+export interface ModifiableIGameInfo {
+  notation?: string;
+  description?: string;
+}
+
 export interface IUserInfo {
   name: string;
   userid: string;
