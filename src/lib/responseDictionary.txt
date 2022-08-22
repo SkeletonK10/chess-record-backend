@@ -24,6 +24,8 @@
 124x: PlayerList search error
 1241: Player duplicate check query error
 
+# code 13xx: DB update error #
+131x: Game update error
 
 ## code 2xxx: Validation error ##
 
@@ -43,3 +45,7 @@
 
 2101: invalid userid format.
 2102: input userid is duplicated.
+
+# code 29xx: General validation
+
+2901: invalid url params - id.

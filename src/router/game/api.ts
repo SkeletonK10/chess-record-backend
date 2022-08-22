@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 
 import { getConnection } from "../../db";
 import { calculateEloDiff, calculatePenaltyRating } from "../../lib/chess";
-import { IGameInfo, ResponseInfo } from "../../lib/types";
+import { IGameInfo, ModifiableIGameInfo } from "../../lib/types";
 import { validateIGameInfo } from "../../lib/validate";
 
 export const test = (req: Request, res: Response, next: NextFunction) => {
@@ -147,6 +147,59 @@ export const insertGame = async (req: Request, res: Response, next: NextFunction
                 msg: `InsertGame: Error occured while inserting.\n${err}`,
             });
             console.log(`InsertGame: Error occured while inserting.\n${err}`);
+        } finally {
+            client.end();
+            return next();
+        }
+    } catch (err) {
+        res.json({
+            code: 1001,
+            msg: "Error occured while DB connecting.",
+        });
+        console.log("Error occured while DB connecting.");
+        return next();
+    }
+};
+
+export const modifyGame = async (req: Request, res: Response, next: NextFunction) => {
+    const body: ModifiableIGameInfo = req.body;
+    const query = `
+    UPDATE game SET
+        notation=$1,
+        description=$2
+    WHERE id=$3
+    ;`;
+    
+    if (!Number.isInteger(Number(req.params.id))) {
+        res.json({
+            code: 2901,
+            msg: `Error: Invalid id for update.`,
+        });
+        console.log(`Error: Invalid id for update.`);
+        return next();
+    }
+    try {
+        const client = await getConnection();
+        try {
+            await client.query("BEGIN");
+            const gameValues = [
+                body.notation,
+                body.description,
+                req.params.id];
+            const gameRet = await client.query(query, gameValues);
+            await client.query("COMMIT");
+            res.json({
+                code: 0,
+                msg: "Update query executed successfully!",
+            });
+            console.log("Update query executed successfully!");
+        } catch (err) {
+            await client.query("ROLLBACK");
+            res.json({
+                code: 1310,
+                msg: `UpdateGame: Error occured while updating.\n${err}`,
+            });
+            console.log(`UpdateGame: Error occured while updating.\n${err}`);
         } finally {
             client.end();
             return next();
