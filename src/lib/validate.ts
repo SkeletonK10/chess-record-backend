@@ -124,7 +124,7 @@ export const validateIUserInfo = async (data: IUserInfo) => {
           code: 1241,
           msg: `Error occured while searching: ${err}`,
         }
-      } finally { client.end(); }
+      } finally { client.release(); }
     } catch (err) {
       return {
         code: 1001,

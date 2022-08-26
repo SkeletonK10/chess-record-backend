@@ -31,7 +31,7 @@ export const getPlayerView = async (req: Request, res: Response, next: NextFunct
             });
             console.log(`PlayerView: Error occured while searching.\n${err}`);
         } finally {
-            client.end();
+            client.release();
             return next();
         }
     } catch (err) {
@@ -79,7 +79,7 @@ export const insertPlayer = async (req: Request, res: Response, next: NextFuncti
             });
             console.log(`InsertPlayer: Error occured while inserting.\n${err}`);
         } finally {
-            client.end();
+            client.release();
             return next();
         }
     } catch (err) {

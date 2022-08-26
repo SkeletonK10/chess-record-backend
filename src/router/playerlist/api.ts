@@ -25,7 +25,7 @@ export const getPlayerList = async (req: Request, res: Response, next: NextFunct
             });
             console.log(`PlayerList: Error occured while searching.\n${err}`);
         } finally {
-            client.end();
+            client.release();
             return next();
         }
     } catch (err) {

@@ -59,7 +59,7 @@ export const getGameView = async (req: Request, res: Response, next: NextFunctio
             });
             console.log(`GameView: Error occured while searching.\n${err}`);
         } finally {
-            client.end();
+            client.release();
             return next();
         }
     } catch (err) {
@@ -148,7 +148,7 @@ export const insertGame = async (req: Request, res: Response, next: NextFunction
             });
             console.log(`InsertGame: Error occured while inserting.\n${err}`);
         } finally {
-            client.end();
+            client.release();
             return next();
         }
     } catch (err) {
@@ -201,7 +201,7 @@ export const modifyGame = async (req: Request, res: Response, next: NextFunction
             });
             console.log(`UpdateGame: Error occured while updating.\n${err}`);
         } finally {
-            client.end();
+            client.release();
             return next();
         }
     } catch (err) {

@@ -55,7 +55,7 @@ export const getGameList = async (req: Request, res: Response, next: NextFunctio
             });
             console.log(`GameList: Error occured while searching.\n${err}`);
         } finally {
-            client.end();
+            client.release();
             return next();
         }
     } catch (err) {
