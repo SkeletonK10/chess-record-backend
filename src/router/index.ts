@@ -1,5 +1,5 @@
 import Router from 'express';
-import { welcome } from './api';
+import { dbTestAndWelcome } from './api';
 import game from './game';
 import gamelist from './gamelist';
 import player from './player';
@@ -7,7 +7,7 @@ import playerlist from './playerlist';
 
 const router = Router();
 
-router.get("/", welcome);
+router.get("/", dbTestAndWelcome);
 
 router.use("/game/", game);
 router.use("/gamelist/", gamelist);
