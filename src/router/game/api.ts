@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
-import { getConnection } from "../../db";
+import { getConnection, getConnectionPool } from "../../db";
 import { calculateEloDiff, calculatePenaltyRating } from "../../lib/chess";
 import { IGameInfo, ModifiableIGameInfo } from "../../lib/types";
 import { validateIGameInfo } from "../../lib/validate";
@@ -37,12 +37,12 @@ export const getGameView = async (req: Request, res: Response, next: NextFunctio
     `;
     
     try {
-        const client = await getConnection();
+        const pool = await getConnectionPool();
         try {
-            const gameRows = await client.query(gameQuery, [req.params.id]);
+            const gameRows = await pool.query(gameQuery, [req.params.id]);
             const game = gameRows.rows[0];
-            const whiteRows = await client.query(playerQuery, [game.white]);
-            const blackRows = await client.query(playerQuery, [game.black]);
+            const whiteRows = await pool.query(playerQuery, [game.white]);
+            const blackRows = await pool.query(playerQuery, [game.black]);
             game.white = {
                 ...whiteRows.rows[0],
                 rating: game.whiterating,
@@ -59,7 +59,6 @@ export const getGameView = async (req: Request, res: Response, next: NextFunctio
             });
             console.log(`GameView: Error occured while searching.\n${err}`);
         } finally {
-            client.release();
             return next();
         }
     } catch (err) {
@@ -108,13 +107,15 @@ export const insertGame = async (req: Request, res: Response, next: NextFunction
     }
     
     try {
-        const client = await getConnection();
+        const pool = await getConnectionPool();
+        const client = await pool.connect();
         try {
             await client.query("BEGIN");
-            const whiteRet = await client.query(playerQuery, [body.white]);
-            const blackRet = await client.query(playerQuery, [body.black]);
-            const whiteRating = whiteRet.rows[0].rating;
-            const blackRating = blackRet.rows[0].rating;
+            const whiteRet = pool.query(playerQuery, [body.white]);
+            const blackRet = pool.query(playerQuery, [body.black]);
+            const [white, black] = await Promise.all([whiteRet, blackRet]);
+            const whiteRating = white.rows[0].rating;
+            const blackRating = black.rows[0].rating;
             const { whiteOffset, blackOffset } = calculatePenaltyRating(body.startpos);
             const { whiteDiff, blackDiff } = calculateEloDiff(whiteRating + whiteOffset, blackRating + blackOffset, body.result);
             const gameValues = [
