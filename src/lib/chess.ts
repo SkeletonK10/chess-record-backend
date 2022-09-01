@@ -1,4 +1,5 @@
 import { Chess } from "chess.js";
+import { PoolClient } from "pg";
 
 import { GameListEntry } from "./types";
 
@@ -102,4 +103,48 @@ export const calculateSummary = (gameList: Array<GameListEntry>, playerID?: numb
   const winRate = ((summary.win + 0.5 * summary.draw) / (summary.win + summary.draw + summary.lose)) * 100;
   summary.winRate = `${winRate.toFixed(2)}%`;
   return summary;
+}
+
+export const validateNotation = (startpos: string, notation: string) => {
+  const game = new Chess();
+  game.load(startpos);
+  game.loadPgn(notation);
+  const moves = game.history();
+  const chess = new Chess();
+  chess.load(startpos);
+  for (let i = 0; i < moves.length; i++) {
+    const fen = chess.fen();
+    const move = moves[i];
+    if (chess.move(move) === null) {
+      return false;
+    }
+    return true;
+  }
+}
+
+export const moveQuery = async (client: PoolClient, gameId: number, startpos: string, notation: string) => {
+  const game = new Chess();
+  game.load(startpos);
+  game.loadPgn(notation);
+  const moves = game.history({ verbose: false });
+  
+  const rootQuery = `
+  INSERT INTO move (gameid, fen, move) VALUES
+  `;
+  const queryValues = [...moves.keys()].map((value) => `(\$${3 * value + 1}, $${3 * value + 2}, $${3 * value + 3})`);
+  const query = `${rootQuery} ${[...queryValues].join(',')};`;
+  
+  const chess = new Chess();
+  chess.load(startpos);
+  const values = [];
+  for (let i = 0; i < moves.length; i++) {
+    const fen = chess.fen();
+    const move = moves[i];
+    chess.move(move);
+    values.push(gameId);
+    values.push(fen);
+    values.push(move);
+  }
+  await client.query(query, values);
+  return true;
 }

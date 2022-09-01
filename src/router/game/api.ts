@@ -1,7 +1,8 @@
+import { Chess } from "chess.js";
 import { Request, Response, NextFunction } from "express";
 
 import { getConnection, getConnectionPool } from "../../db";
-import { calculateEloDiff, calculatePenaltyRating } from "../../lib/chess";
+import { calculateEloDiff, calculatePenaltyRating, moveQuery, validateNotation } from "../../lib/chess";
 import { IGameInfo, ModifiableIGameInfo } from "../../lib/types";
 import { validateIGameInfo } from "../../lib/validate";
 
@@ -75,6 +76,7 @@ export const getGameView = async (req: Request, res: Response, next: NextFunctio
 // TODO 2: 레이팅 반영 (페널티 등등 고려해서)
 
 export const insertGame = async (req: Request, res: Response, next: NextFunction) => {
+    console.time("InsertGame");
     const body: IGameInfo = req.body;
     const playerQuery = `SELECT rating FROM player WHERE id=$1`;
     const playerUpdateQuery = `
@@ -84,6 +86,7 @@ export const insertGame = async (req: Request, res: Response, next: NextFunction
     `;
     const gameQuery = `
     INSERT INTO game (
+        id,
         playedat,
         white,
         black,
@@ -97,11 +100,12 @@ export const insertGame = async (req: Request, res: Response, next: NextFunction
         blackratingdiff,
         notation,
         description) 
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
     `;
     const validationRes = validateIGameInfo(body);
     if (validationRes.code !== 0) {
-        console.log(`Code ${validationRes.code}: Invalid query has rejected`)
+        console.log(`Code ${validationRes.code}: Invalid query has rejected`);
+        console.timeEnd("InsertGame");
         res.json(validationRes);
         return next();
     }
@@ -111,14 +115,17 @@ export const insertGame = async (req: Request, res: Response, next: NextFunction
         const client = await pool.connect();
         try {
             await client.query("BEGIN");
-            const whiteRet = pool.query(playerQuery, [body.white]);
-            const blackRet = pool.query(playerQuery, [body.black]);
-            const [white, black] = await Promise.all([whiteRet, blackRet]);
-            const whiteRating = white.rows[0].rating;
-            const blackRating = black.rows[0].rating;
+            const whiteRetP = pool.query(playerQuery, [body.white]);
+            const blackRetP = pool.query(playerQuery, [body.black]);
+            const idRetP = pool.query(`SELECT NEXTVAL('game_id_seq')`);
+            const [whiteRet, blackRet, idRet] = await Promise.all([whiteRetP, blackRetP, idRetP]);
+            const id = idRet.rows[0].nextval;
+            const whiteRating = whiteRet.rows[0].rating;
+            const blackRating = blackRet.rows[0].rating;
             const { whiteOffset, blackOffset } = calculatePenaltyRating(body.startpos);
             const { whiteDiff, blackDiff } = calculateEloDiff(whiteRating + whiteOffset, blackRating + blackOffset, body.result);
             const gameValues = [
+                id,
                 body.playedat,
                 body.white,
                 body.black,
@@ -135,6 +142,11 @@ export const insertGame = async (req: Request, res: Response, next: NextFunction
             const gameRet = await client.query(gameQuery, gameValues);
             const whiteUpdate = await client.query(playerUpdateQuery, [whiteRating + whiteDiff, body.white]);
             const blackUpdate = await client.query(playerUpdateQuery, [blackRating + blackDiff, body.black]);
+            const chess = new Chess();
+            chess.load(body.startpos);
+            if (body.notation && validateNotation(body.startpos, body.notation)) {
+                await moveQuery(client, id, body.startpos, body.notation);
+            }
             await client.query("COMMIT");
             res.json({
                 code: 0,
@@ -150,6 +162,7 @@ export const insertGame = async (req: Request, res: Response, next: NextFunction
             console.log(`InsertGame: Error occured while inserting.\n${err}`);
         } finally {
             client.release();
+            console.timeEnd("InsertGame");
             return next();
         }
     } catch (err) {
@@ -158,6 +171,7 @@ export const insertGame = async (req: Request, res: Response, next: NextFunction
             msg: "Error occured while DB connecting.",
         });
         console.log("Error occured while DB connecting.");
+        console.timeEnd("InsertGame");
         return next();
     }
 };
