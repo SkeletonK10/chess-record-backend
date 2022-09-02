@@ -126,7 +126,7 @@ export const moveQuery = async (client: PoolClient, gameId: number, startpos: st
   const game = new Chess();
   game.load(startpos);
   game.loadPgn(notation);
-  const moves = game.history({ verbose: false });
+  const moves = game.history();
   
   const rootQuery = `
   INSERT INTO move (gameid, fen, move) VALUES
@@ -141,9 +141,7 @@ export const moveQuery = async (client: PoolClient, gameId: number, startpos: st
     const fen = chess.fen();
     const move = moves[i];
     chess.move(move);
-    values.push(gameId);
-    values.push(fen);
-    values.push(move);
+    values.push([gameId, fen, move]);
   }
   await client.query(query, values);
   return true;
