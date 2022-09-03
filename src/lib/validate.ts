@@ -153,13 +153,11 @@ export const validateIUserInfo = async (data: IUserInfo) => {
 
 export const validateNotation = (startpos: string, notation: string) => {
   const game = new Chess();
-  game.load(startpos);
-  game.loadPgn(notation);
+  if (!game.loadPgn(notation)) return false;
   const moves = game.history();
   const chess = new Chess();
   chess.load(startpos);
   for (let i = 0; i < moves.length; i++) {
-    const fen = chess.fen();
     const move = moves[i];
     if (chess.move(move) === null) {
       return false;
