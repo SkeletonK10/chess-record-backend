@@ -46,6 +46,10 @@
 2101: invalid userid format.
 2102: input userid is duplicated.
 
+# code 22xx: Notation validation #
+
+2200: invalid notation - general reason.
+
 # code 29xx: General validation
 
 2901: invalid url params - id.
