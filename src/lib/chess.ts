@@ -105,23 +105,6 @@ export const calculateSummary = (gameList: Array<GameListEntry>, playerID?: numb
   return summary;
 }
 
-export const validateNotation = (startpos: string, notation: string) => {
-  const game = new Chess();
-  game.load(startpos);
-  game.loadPgn(notation);
-  const moves = game.history();
-  const chess = new Chess();
-  chess.load(startpos);
-  for (let i = 0; i < moves.length; i++) {
-    const fen = chess.fen();
-    const move = moves[i];
-    if (chess.move(move) === null) {
-      return false;
-    }
-    return true;
-  }
-}
-
 export const moveQuery = async (client: PoolClient, gameId: number, startpos: string, notation: string) => {
   const game = new Chess();
   game.load(startpos);

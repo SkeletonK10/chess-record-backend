@@ -2,9 +2,9 @@ import { Chess } from "chess.js";
 import { Request, Response, NextFunction } from "express";
 
 import { getConnection, getConnectionPool } from "../../db";
-import { calculateEloDiff, calculatePenaltyRating, moveQuery, validateNotation } from "../../lib/chess";
+import { calculateEloDiff, calculatePenaltyRating, moveQuery } from "../../lib/chess";
 import { IGameInfo, ModifiableIGameInfo } from "../../lib/types";
-import { validateIGameInfo } from "../../lib/validate";
+import { validateIGameInfo, validateNotation } from "../../lib/validate";
 
 export const test = (req: Request, res: Response, next: NextFunction) => {
     res.send("Hello, world!");

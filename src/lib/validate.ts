@@ -131,9 +131,7 @@ export const validateIUserInfo = async (data: IUserInfo) => {
         msg: "Error occured while DB connecting.",
       };
     }
-    
-    
-    
+
     if (result.rowCount !== 0) {
       return {
         code: 2102,
@@ -151,4 +149,21 @@ export const validateIUserInfo = async (data: IUserInfo) => {
     code: 0,
     msg: "This data is valid!",
   };
+}
+
+export const validateNotation = (startpos: string, notation: string) => {
+  const game = new Chess();
+  game.load(startpos);
+  game.loadPgn(notation);
+  const moves = game.history();
+  const chess = new Chess();
+  chess.load(startpos);
+  for (let i = 0; i < moves.length; i++) {
+    const fen = chess.fen();
+    const move = moves[i];
+    if (chess.move(move) === null) {
+      return false;
+    }
+    return true;
+  }
 }
