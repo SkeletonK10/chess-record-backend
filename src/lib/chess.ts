@@ -124,7 +124,7 @@ export const moveQuery = async (client: PoolClient, gameId: number, startpos: st
     const fen = chess.fen();
     const move = moves[i];
     chess.move(move);
-    values.push([gameId, fen, move]);
+    values.push(gameId, fen, move);
   }
   await client.query(query, values);
   return true;
