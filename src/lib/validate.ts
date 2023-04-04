@@ -49,7 +49,9 @@ export const validateIGameInfo = (data: IGameInfo) => {
     }
     
     // startpos
-    if (new Chess().load(data.startpos) === false) {
+    try {
+      new Chess().load(data.startpos);
+    } catch {
       return {
         code: 2004,
         msg: "Error: invalid start position",
